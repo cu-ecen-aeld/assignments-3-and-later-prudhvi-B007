@@ -1,26 +1,31 @@
-name: assignment-test
+name: AESD Assignment 3 Autotest
+
 on:
-    push:
-        tags-ignore:
-            - '*'
-        branches:
-            - '*'
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
 jobs:
-    unit-test:
-        container: cuaesd/aesd-autotest:24-unit-test
-        runs-on: self-hosted
-        steps:
-          - uses: actions/checkout@v2
-          - name: Checkout submodules
-            run : git submodule update --init --recursive
-          - name: Run unit test
-            run: ./unit-test.sh
-    full-test:
-        container: cuaesd/aesd-autotest:24-assignment3
-        runs-on: self-hosted
-        steps:
-          - uses: actions/checkout@v2
-          - name: Checkout submodules
-            run : git submodule update --init --recursive
-          - name: Run full test
-            run: ./full-test.sh
+  build:
+    runs-on: self-hosted
+
+    container:
+      image: cuaesd/aesd-autotest:24-assignment3
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install missing toolchain
+        run: |
+          apt-get update
+          apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+          # sanity check
+          which aarch64-linux-gnu-gcc
+          aarch64-linux-gnu-gcc --version
+
+      - name: Run full test
+        run: ./full-test.sh
+
