@@ -14,17 +14,18 @@ jobs:
       image: cuaesd/aesd-autotest:24-assignment3
 
     steps:
-      # Step 1: Get the repository code
       - name: Checkout source
         uses: actions/checkout@v3
 
-      # Step 2: Ensure cross-compiler toolchain is available
-      - name: Install ARM cross toolchain
+      - name: Install missing toolchain
         run: |
           apt-get update
           apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
-      # Step 3: Run the assignment autotests
+          # sanity check
+          which aarch64-linux-gnu-gcc
+          aarch64-linux-gnu-gcc --version
+
       - name: Run full test
         run: ./full-test.sh
 
