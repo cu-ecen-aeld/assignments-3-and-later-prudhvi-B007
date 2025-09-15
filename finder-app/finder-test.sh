@@ -49,8 +49,14 @@ then
 	fi
 fi
 #echo "Removing the old writer utility and compiling as a native application"
-make clean
-make
+#make clean
+#make
+# Ensure writer is present
+if [ ! -f ./writer ]; then
+    echo "Error: writer binary not found in $(pwd)"
+    exit 1
+fi
+
 
 for i in $( seq 1 $NUMFILES)
 do
