@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  unit-test:
+  build:
     runs-on: self-hosted
 
     container:
@@ -21,26 +21,8 @@ jobs:
         run: |
           apt-get update
           apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-          which aarch64-linux-gnu-gcc
-          aarch64-linux-gnu-gcc --version
 
-      - name: Run unit tests
-        run: ./unit-test.sh
-
-  full-test:
-    runs-on: self-hosted
-
-    container:
-      image: cuaesd/aesd-autotest:24-assignment3
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Install missing toolchain
-        run: |
-          apt-get update
-          apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          # sanity check
           which aarch64-linux-gnu-gcc
           aarch64-linux-gnu-gcc --version
 

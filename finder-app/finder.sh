@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -e
 
 if [ $# -ne 2 ]; then
   echo "Error: two arguments required: <filesdir> <searchstr>" >&2
@@ -14,7 +14,11 @@ if [ ! -d "$filesdir" ]; then
   exit 1
 fi
 
+# Count files
 file_count=$(find "$filesdir" -type f | wc -l)
-match_count=$(grep -r -n --exclude-dir=".git" -- "$searchstr" "$filesdir" | wc -l || true)
+
+# BusyBox grep supports -r but not --exclude-dir
+match_count=$(grep -r "$searchstr" "$filesdir" | wc -l || true)
 
 echo "The number of files are $file_count and the number of matching lines are $match_count"
+
