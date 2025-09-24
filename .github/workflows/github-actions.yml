@@ -1,4 +1,4 @@
-name: AESD Assignment 3 Autotest
+name: AESD Assignment 4 Part 1 Unit Test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  unit-test:
     runs-on: self-hosted
 
     container:
@@ -17,15 +17,9 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Install missing toolchain
-        run: |
-          apt-get update
-          apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
 
-          # sanity check
-          which aarch64-linux-gnu-gcc
-          aarch64-linux-gnu-gcc --version
-
-      - name: Run full test
-        run: ./full-test.sh
+      - name: Run unit tests
+        run: ./unit-test.sh
 
