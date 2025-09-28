@@ -1,10 +1,14 @@
-CC ?= gcc
-CFLAGS = -Wall -Werror -g
+CC      ?= gcc            
+CFLAGS  ?= -Wall -Werror -O2
+LDFLAGS ?=
+
+.PHONY: all clean
 
 all: aesdsocket
 
 aesdsocket: aesdsocket.c
-	$(CC) $(CFLAGS) -o aesdsocket aesdsocket.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f aesdsocket
+
