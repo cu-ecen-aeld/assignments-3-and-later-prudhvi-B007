@@ -14,8 +14,7 @@
 #define FILE_PATH "/var/tmp/aesdsocketdata"
 #define BUF_SIZE 1024
 
-
-int server_fd;  // make global so handler can close it
+int server_fd = -1;
 
 void signal_handler(int signo)
 {
@@ -26,9 +25,7 @@ void signal_handler(int signo)
             close(server_fd);
         }
 
-        // delete the file
         remove(FILE_PATH);
-
         closelog();
         exit(EXIT_SUCCESS);
     }
@@ -37,59 +34,40 @@ void signal_handler(int signo)
 void daemonize()
 {
     pid_t pid = fork();
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS); // parent exits
 
-    if (pid < 0) {
-        exit(EXIT_FAILURE);
-    }
+    if (setsid() < 0) exit(EXIT_FAILURE);
 
-    if (pid > 0) {
-        // Parent exits
-        exit(EXIT_SUCCESS);
-    }
-
-    // Child continues
-    if (setsid() < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    // Redirect standard file descriptors to /dev/null
+    // redirect fds
     freopen("/dev/null", "r", stdin);
     freopen("/dev/null", "w", stdout);
     freopen("/dev/null", "w", stderr);
 }
 
-
 int main(int argc, char *argv[])
 {
-
     int daemon_mode = 0;
-
     if (argc == 2 && strcmp(argv[1], "-d") == 0) {
         daemon_mode = 1;
     }
 
-    if (daemon_mode) {
-        daemonize();
-    }
+    if (daemon_mode) daemonize();
 
-    int server_fd, client_fd, data_fd;
+    int client_fd, data_fd;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_len = sizeof(client_addr);
     char buffer[BUF_SIZE];
     ssize_t bytes_read;
 
     openlog("aesdsocket", LOG_PID, LOG_USER);
-    
-    // Install signal handlers
-    if (signal(SIGINT, signal_handler) == SIG_ERR) {
-        syslog(LOG_ERR, "Error setting SIGINT handler");
-        exit(EXIT_FAILURE);
-    }
-    if (signal(SIGTERM, signal_handler) == SIG_ERR) {
-        syslog(LOG_ERR, "Error setting SIGTERM handler");
-        exit(EXIT_FAILURE);
-    }
 
+    // setup signals
+    if (signal(SIGINT, signal_handler) == SIG_ERR ||
+        signal(SIGTERM, signal_handler) == SIG_ERR) {
+        syslog(LOG_ERR, "Error setting signal handler: %s", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
@@ -126,24 +104,27 @@ int main(int argc, char *argv[])
 
         syslog(LOG_INFO, "Accepted connection from %s", inet_ntoa(client_addr.sin_addr));
 
-        // Open file for append
+        // open file for append
         data_fd = open(FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0644);
         if (data_fd == -1) {
-            syslog(LOG_ERR, "open file failed: %s", strerror(errno));
+            syslog(LOG_ERR, "open failed: %s", strerror(errno));
             close(client_fd);
             continue;
         }
 
-        // Read until newline
+        // read data and write to file until newline
         while ((bytes_read = recv(client_fd, buffer, BUF_SIZE, 0)) > 0) {
-            write(data_fd, buffer, bytes_read);
+            if (write(data_fd, buffer, bytes_read) != bytes_read) {
+                syslog(LOG_ERR, "write failed: %s", strerror(errno));
+                break;
+            }
             if (memchr(buffer, '\n', bytes_read)) {
                 break;
             }
         }
         close(data_fd);
 
-        // Send back full file contents
+        // now send file contents back
         data_fd = open(FILE_PATH, O_RDONLY);
         if (data_fd != -1) {
             while ((bytes_read = read(data_fd, buffer, BUF_SIZE)) > 0) {
