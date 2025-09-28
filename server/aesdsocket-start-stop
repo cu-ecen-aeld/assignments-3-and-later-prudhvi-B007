@@ -1,0 +1,40 @@
+#!/bin/sh
+set -eu
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+DAEMON="$SCRIPT_DIR/aesdsocket"
+NAME="aesdsocket"
+
+case "${1:-}" in
+  start)
+    echo "Starting $NAME..."
+    start-stop-daemon --start --exec "$DAEMON" -- -d
+    echo "Started."
+    ;;
+  stop)
+    echo "Stopping $NAME..."
+    if start-stop-daemon --stop --exec "$DAEMON" --signal TERM --oknodo; then
+      echo "Stopped."
+    else
+      pkill -TERM -x "$NAME" >/dev/null 2>&1 || true
+      echo "Stopped (fallback)."
+    fi
+    ;;
+  status)
+    if pgrep -x "$NAME" >/dev/null 2>&1; then
+      echo "$NAME is running"
+    else
+      echo "$NAME is not running"
+    fi
+    ;;
+  restart)
+    "$0" stop || true
+    sleep 1
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart}"
+    exit 1
+    ;;
+esac
+

@@ -11,4 +11,3 @@ finder-app/finder.sh
 finder-app/writer.sh
 testfile.txt
 server/aesdsocket
-valgrind-out.txt
