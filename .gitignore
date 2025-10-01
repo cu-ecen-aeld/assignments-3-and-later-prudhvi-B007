@@ -10,3 +10,4 @@ dependencies.sh
 finder-app/finder.sh
 finder-app/writer.sh
 testfile.txt
+server/aesdsocket

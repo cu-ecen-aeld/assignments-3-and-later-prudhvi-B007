@@ -1,4 +1,4 @@
-name: AESD Assignment 4 Part 1 Unit Test
+name: AESD Assignment 5
 
 on:
   push:
@@ -7,19 +7,23 @@ on:
     branches: [ master ]
 
 jobs:
-  unit-test:
-    runs-on: self-hosted
+    unit-test:
+        container: cuaesd/aesd-autotest:24-unit-test
+        runs-on: self-hosted
+        steps:
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            run : git submodule update --init --recursive
+          - name: Run unit test
+            run: ./unit-test.sh
 
-    container:
-      image: cuaesd/aesd-autotest:24-assignment3
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Checkout submodules
-        run: git submodule update --init --recursive
-
-      - name: Run unit tests
-        run: ./unit-test.sh
+    full-test:
+        container: cuaesd/aesd-autotest:24-assignment5
+        runs-on: self-hosted
+        steps:
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            run : git submodule update --init --recursive
+          - name: Run full test
+            run: ./full-test.sh
 
