@@ -6,8 +6,11 @@ crosstool-ng
 aesd-build
 .vscode/
 test.sh.log
+<<<<<<< HEAD
 dependencies.sh
 finder-app/finder.sh
 finder-app/writer.sh
 testfile.txt
+server/aesdsocket
+aesdsocket
 server/aesdsocket
