@@ -1,4 +1,4 @@
-CC      ?= gcc
+CC      ?= $(CROSS_COMPILE)gcc
 CFLAGS  ?= -Wall -Werror -O2
 LDFLAGS ?=
 
@@ -15,3 +15,14 @@ aesdsocket: aesdsocket.c
 
 clean:
 	rm -f aesdsocket
+	
+	
+
+
+
+
+
+
+
+
+
