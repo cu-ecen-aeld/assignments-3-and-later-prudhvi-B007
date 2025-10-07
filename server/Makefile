@@ -1,6 +1,10 @@
-CC      ?= gcc            
+CC      ?= $(CROSS_COMPILE)gcc
 CFLAGS  ?= -Wall -Werror -O2
 LDFLAGS ?=
+
+# Added pthread for both compile and link 
+CFLAGS  += -pthread
+LDFLAGS += -pthread
 
 .PHONY: all clean
 
@@ -11,4 +15,14 @@ aesdsocket: aesdsocket.c
 
 clean:
 	rm -f aesdsocket
+	
+	
+
+
+
+
+
+
+
+
 
