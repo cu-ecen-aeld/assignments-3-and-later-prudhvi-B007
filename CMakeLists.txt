@@ -7,11 +7,13 @@ set(AUTOTEST_SOURCES
     test/assignment1/Test_hello.c
     test/assignment1/Test_assignment_validate.c
     test/assignment4/Test_threading.c
+    test/assignment7/Test_circular_buffer.c
 )
 
 set(TESTED_SOURCE
     ../examples/autotest-validate/autotest-validate.c
     ../examples/threading/threading.c
+    ../aesd-char-driver/aesd-circular-buffer.c
 )
 
 add_subdirectory(assignment-autotest)
